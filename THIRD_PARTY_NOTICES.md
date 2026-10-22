@@ -23,5 +23,5 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 
 ## Bundled fonts
 
-- Noto Sans SC, 900 weight: Google Fonts distribution, Copyright 2014–2021 Adobe. Converted from TTF to WOFF2 without glyph changes. License: SIL OFL 1.1, see `public/fonts/OFL-NotoSansSC.txt`. Source: https://github.com/google/fonts/tree/main/ofl/notosanssc
+- Noto Sans SC, variable weights 100–900: Google Fonts distribution, Copyright 2014–2021 Adobe. Converted from TTF to WOFF2 without glyph changes. License: SIL OFL 1.1, see `public/fonts/OFL-NotoSansSC.txt`. Source: https://github.com/google/fonts/tree/main/ofl/notosanssc
 - ZCOOL KuaiLe, regular: Copyright 2018 The ZCOOL KuaiLe Project Authors. Converted from TTF to WOFF2 without glyph changes. License: SIL OFL 1.1, see `public/fonts/OFL-ZCOOLKuaiLe.txt`. Source: https://github.com/google/fonts/tree/main/ofl/zcoolkuaile

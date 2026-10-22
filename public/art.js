@@ -3,14 +3,24 @@ import { random, colorFor, linearToSrgb, simulate } from "./core.js";
 export const FONT_STYLES = {
   black: {
     family: '"Whisper Black", "PingFang SC", "Microsoft YaHei", sans-serif',
-    weight: 900,
+    weight: 500,
   },
   playful: {
     family: '"Whisper Playful", "PingFang SC", sans-serif',
     weight: 400,
   },
 };
-export const DEFAULT_TYPOGRAPHY = { font: "black", size: 270, spacing: 0.18 };
+export const DEFAULT_TYPOGRAPHY = {
+  font: "black",
+  size: 270,
+  spacing: 0.18,
+  thickness: 20,
+};
+export function fontWeight(settings) {
+  return settings.font === "playful"
+    ? 400
+    : 400 + Math.min(100, Math.max(0, settings.thickness ?? 20)) * 5;
+}
 const geometryCache = new Map();
 
 export function makeArtwork(text, density, seed, typography = {}) {
@@ -38,7 +48,7 @@ export function makeArtwork(text, density, seed, typography = {}) {
     Array.from(line).reduce((sum, ch) => sum + ctx.measureText(ch).width, 0) +
     Math.max(0, Array.from(line).length - 1) * fontSize * spacing;
   for (; fontSize >= 20; fontSize -= 2) {
-    ctx.font = `${font.weight} ${fontSize}px ${font.family}`;
+    ctx.font = `${fontWeight(settings)} ${fontSize}px ${font.family}`;
     lines = [];
     for (const paragraph of paragraphs) {
       let current = "";
@@ -57,8 +67,15 @@ export function makeArtwork(text, density, seed, typography = {}) {
   ctx.fillStyle = "#fff";
   ctx.strokeStyle = "#fff";
   ctx.lineJoin = "round";
-  // A small mask expansion keeps narrow strokes connected across dot gaps.
-  ctx.lineWidth = fontSize * 0.012;
+  // Black uses real variable-font weights without the old extra outline.
+  // The fixed-weight playful font gets a small, signed outline adjustment.
+  const outline =
+    settings.font === "playful"
+      ? (Math.min(100, Math.max(0, settings.thickness)) - 40) *
+        fontSize *
+        0.00025
+      : 0;
+  ctx.lineWidth = Math.max(0.01, Math.abs(outline) * 2);
   const lineHeight = fontSize * 1.26;
   const metrics = ctx.measureText("国Ag");
   const baselineOffset =
@@ -67,8 +84,13 @@ export function makeArtwork(text, density, seed, typography = {}) {
     let x = 500 - widthOf(line) / 2;
     const y = 500 + (i - (lines.length - 1) / 2) * lineHeight + baselineOffset;
     for (const ch of Array.from(line)) {
-      ctx.strokeText(ch, x, y);
       ctx.fillText(ch, x, y);
+      if (outline !== 0) {
+        ctx.globalCompositeOperation =
+          outline < 0 ? "destination-out" : "source-over";
+        ctx.strokeText(ch, x, y);
+        ctx.globalCompositeOperation = "source-over";
+      }
       x += ctx.measureText(ch).width + fontSize * spacing;
     }
   });
@@ -92,8 +114,8 @@ export function makeArtwork(text, density, seed, typography = {}) {
     dots = [],
     cellSize = 24,
     grid = new Map();
-  const maxR = [12, 8.6, 6.3][density],
-    minR = [4.5, 3, 2.3][density];
+  const maxR = [12, 8.6, 6.3, 4.2][density],
+    minR = [4.5, 3, 2.3, 1.5][density];
   function inside(x, y, r) {
     if (circular) return Math.hypot(x - 500, y - 500) + r < 465;
     // Rounded rectangle, independent of message mask.
@@ -101,7 +123,7 @@ export function makeArtwork(text, density, seed, typography = {}) {
       dy = Math.max(Math.abs(y - 500) - 355, 0);
     return Math.hypot(dx, dy) + r < 100;
   }
-  const attempts = [35000, 65000, 105000][density];
+  const attempts = [35000, 65000, 105000, 190000][density];
   for (let n = 0; n < attempts; n++) {
     const x = 35 + rng() * 930,
       y = 35 + rng() * 930,

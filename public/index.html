@@ -10,8 +10,8 @@
     />
     <title>色彩密语 Color Whisper · 把心事藏进颜色里</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./style.css" />
-    <script type="module" src="./app.js"></script>
+    <link rel="stylesheet" href="./style.css?v=stroke-3" />
+    <script type="module" src="./app.js?v=stroke-3"></script>
   </head>
   <body>
     <header class="header wrap">
@@ -102,7 +102,7 @@
             <div class="suggestions">
               <button data-message="偷偷喜欢你">偷偷喜欢你</button
               ><button data-message="今天不想上班">今天不想上班</button
-              ><button data-message="你好，世界">你好，世界</button>
+              ><button data-message="放叠藏露">试试复杂字</button>
             </div>
             <div class="field-title type-title">
               <label for="vision"
@@ -139,19 +139,37 @@
               </div>
               <div class="preset-options" role="group" aria-label="排版预设">
                 <button data-preset="clear" aria-pressed="true">
-                  舒展粗黑
+                  舒展细黑
                 </button>
                 <button data-preset="compact" aria-pressed="false">
-                  紧凑粗黑
+                  紧凑中黑
                 </button>
                 <button data-preset="playful" aria-pressed="false">
                   活泼圆体
                 </button>
               </div>
               <select id="font" aria-label="密语字体">
-                <option value="black">清晰粗黑 · 思源黑体</option>
+                <option value="black">可变黑体 · 粗细可调</option>
                 <option value="playful">活泼圆体 · 站酷快乐体</option>
               </select>
+              <div class="field-title slider-title">
+                <label for="stroke-thickness">笔画粗细</label
+                ><output id="stroke-thickness-label">偏细</output>
+              </div>
+              <input
+                id="stroke-thickness"
+                type="range"
+                min="0"
+                max="100"
+                step="10"
+                value="20"
+              />
+              <div class="range-labels">
+                <span>细 · 保留字内空隙</span><span>粗 · 加强笔画</span>
+              </div>
+              <p class="layout-hint">
+                “叠、藏、露”等复杂字可向左调细，再搭配“微点”。
+              </p>
               <div class="field-title slider-title">
                 <label for="font-size">目标字号</label
                 ><output id="font-size-label">270 px</output>
@@ -182,18 +200,19 @@
             <div class="field-title texture-title">
               <label for="density"
                 ><span class="step">04</span> 圆点的个性</label
-              ><output id="density-label">超细腻</output>
+              ><output id="density-label">微点</output>
             </div>
             <input
               id="density"
               type="range"
               min="0"
-              max="2"
-              value="2"
+              max="3"
+              value="3"
               step="1"
             />
             <div class="range-labels">
-              <span>大颗粒</span><span>细腻</span><span>超细腻</span>
+              <span>大颗粒</span><span>细腻</span><span>超细腻</span
+              ><span>微点</span>
             </div>
             <button id="generate" class="primary">
               <span>✧</span> 生成我的密语 <span>↗</span>

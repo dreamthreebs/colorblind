@@ -4,7 +4,8 @@ import {
   drawArtwork,
   DEFAULT_TYPOGRAPHY,
   FONT_STYLES,
-} from "./art.js";
+  fontWeight,
+} from "./art.js?v=stroke-3";
 
 const $ = (selector) => document.querySelector(selector),
   $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -12,7 +13,7 @@ const state = {
   type: "deutan",
   view: "original",
   severity: 100,
-  density: 2,
+  density: 3,
   typography: { ...DEFAULT_TYPOGRAPHY },
   seed: Math.floor(Math.random() * 2 ** 32),
   pages: [],
@@ -144,17 +145,28 @@ $$("[data-view]").forEach(
 );
 $("#density").oninput = () => {
   state.density = Number($("#density").value);
-  $("#density-label").textContent = ["大颗粒", "细腻", "超细腻"][state.density];
+  $("#density-label").textContent = ["大颗粒", "细腻", "超细腻", "微点"][
+    state.density
+  ];
   redrawCurrent();
 };
 const presets = {
-  clear: { font: "black", size: 270, spacing: 0.18 },
-  compact: { font: "black", size: 220, spacing: 0.08 },
-  playful: { font: "playful", size: 270, spacing: 0.22 },
+  clear: { font: "black", size: 270, spacing: 0.18, thickness: 20 },
+  compact: { font: "black", size: 220, spacing: 0.08, thickness: 40 },
+  playful: { font: "playful", size: 270, spacing: 0.22, thickness: 40 },
 };
 function updateTypographyControls() {
   $("#font").value = state.typography.font;
   $("#font-size").value = state.typography.size;
+  $("#stroke-thickness").value = state.typography.thickness;
+  $("#stroke-thickness-label").textContent =
+    state.typography.thickness <= 20
+      ? "偏细"
+      : state.typography.thickness <= 50
+        ? "适中"
+        : state.typography.thickness < 90
+          ? "偏粗"
+          : "特粗";
   $("#letter-spacing").value = Math.round(state.typography.spacing * 100);
   $("#font-size-label").textContent = `${state.typography.size} px`;
   $("#letter-spacing-label").textContent =
@@ -175,7 +187,7 @@ async function ensureFont() {
   $("#font-status").textContent = "正在加载本地字体…";
   try {
     const faces = await document.fonts.load(
-      `${definition.weight} 270px ${definition.family.split(",")[0]}`,
+      `${fontWeight(state.typography)} 270px ${definition.family.split(",")[0]}`,
     );
     if (!faces.length) throw new Error("Font unavailable");
     if (request !== fontRequest) return;
@@ -202,10 +214,11 @@ $("#font").onchange = () => {
   redrawCurrent();
   ensureFont();
 };
-for (const id of ["font-size", "letter-spacing"])
+for (const id of ["font-size", "letter-spacing", "stroke-thickness"])
   $("#" + id).oninput = () => {
     state.typography.size = Number($("#font-size").value);
     state.typography.spacing = Number($("#letter-spacing").value) / 100;
+    state.typography.thickness = Number($("#stroke-thickness").value);
     updateTypographyControls();
     redrawCurrent();
   };
