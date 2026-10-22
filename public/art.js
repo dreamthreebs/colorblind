@@ -1,6 +1,21 @@
 import { random, colorFor, linearToSrgb, simulate } from "./core.js";
 
-export function makeArtwork(text, density, seed) {
+export const FONT_STYLES = {
+  black: {
+    family: '"Whisper Black", "PingFang SC", "Microsoft YaHei", sans-serif',
+    weight: 900,
+  },
+  playful: {
+    family: '"Whisper Playful", "PingFang SC", sans-serif',
+    weight: 400,
+  },
+};
+export const DEFAULT_TYPOGRAPHY = { font: "black", size: 270, spacing: 0.18 };
+const geometryCache = new Map();
+
+export function makeArtwork(text, density, seed, typography = {}) {
+  const settings = { ...DEFAULT_TYPOGRAPHY, ...typography };
+  const font = FONT_STYLES[settings.font] || FONT_STYLES.black;
   const mask = document.createElement("canvas");
   mask.width = mask.height = 1000;
   const ctx = mask.getContext("2d", { willReadFrequently: true });
@@ -15,32 +30,64 @@ export function makeArtwork(text, density, seed) {
         )
       : text.split("\n");
   let lines = [],
-    fontSize = 210;
-  const maxWidth = circular ? 660 : 810,
-    maxHeight = circular ? 580 : 760;
-  for (; fontSize >= 36; fontSize -= 2) {
-    ctx.font = `900 ${fontSize}px "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif`;
+    fontSize = Math.min(340, Math.max(120, settings.size));
+  const spacing = Math.min(0.4, Math.max(0, settings.spacing));
+  const maxWidth = circular ? 640 : 810,
+    maxHeight = circular ? 640 : 760;
+  const widthOf = (line) =>
+    Array.from(line).reduce((sum, ch) => sum + ctx.measureText(ch).width, 0) +
+    Math.max(0, Array.from(line).length - 1) * fontSize * spacing;
+  for (; fontSize >= 20; fontSize -= 2) {
+    ctx.font = `${font.weight} ${fontSize}px ${font.family}`;
     lines = [];
     for (const paragraph of paragraphs) {
       let current = "";
       for (const ch of Array.from(paragraph)) {
-        if (current && ctx.measureText(current + ch).width > maxWidth) {
+        if (current && widthOf(current + ch) > maxWidth) {
           lines.push(current);
           current = ch;
         } else current += ch;
       }
       lines.push(current);
     }
-    if (lines.length * fontSize * 1.22 <= maxHeight) break;
+    if ((lines.length - 1) * fontSize * 1.26 + fontSize <= maxHeight) break;
   }
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
   ctx.fillStyle = "#fff";
-  const lineHeight = fontSize * 1.22;
-  lines.forEach((line, i) =>
-    ctx.fillText(line, 500, 500 + (i - (lines.length - 1) / 2) * lineHeight),
-  );
+  ctx.strokeStyle = "#fff";
+  ctx.lineJoin = "round";
+  // A small mask expansion keeps narrow strokes connected across dot gaps.
+  ctx.lineWidth = fontSize * 0.012;
+  const lineHeight = fontSize * 1.26;
+  const metrics = ctx.measureText("国Ag");
+  const baselineOffset =
+    (metrics.actualBoundingBoxAscent - metrics.actualBoundingBoxDescent) / 2;
+  lines.forEach((line, i) => {
+    let x = 500 - widthOf(line) / 2;
+    const y = 500 + (i - (lines.length - 1) / 2) * lineHeight + baselineOffset;
+    for (const ch of Array.from(line)) {
+      ctx.strokeText(ch, x, y);
+      ctx.fillText(ch, x, y);
+      x += ctx.measureText(ch).width + fontSize * spacing;
+    }
+  });
   const pixels = ctx.getImageData(0, 0, 1000, 1000).data;
+  const geometryKey = `${density}:${seed}:${circular}`;
+  const layout = { fontSize, spacing: fontSize * spacing, lines };
+  const classify = (dot) => ({
+    ...dot,
+    isText:
+      pixels[(Math.floor(dot.y) * 1000 + Math.floor(dot.x)) * 4 + 3] > 100,
+  });
+  if (geometryCache.has(geometryKey)) {
+    return {
+      dots: geometryCache.get(geometryKey).map(classify),
+      circular,
+      text,
+      layout,
+    };
+  }
   const rng = random(seed),
     dots = [],
     cellSize = 24,
@@ -66,7 +113,7 @@ export function makeArtwork(text, density, seed) {
     for (let dx = -1; dx <= 1 && !collides; dx++)
       for (let dy = -1; dy <= 1 && !collides; dy++) {
         for (const d of grid.get(`${gx + dx},${gy + dy}`) || []) {
-          if ((d.x - x) ** 2 + (d.y - y) ** 2 < (d.r + r + 1.5) ** 2) {
+          if ((d.x - x) ** 2 + (d.y - y) ** 2 < (d.r + r + 0.8) ** 2) {
             collides = true;
             break;
           }
@@ -80,7 +127,15 @@ export function makeArtwork(text, density, seed) {
     if (!grid.has(key)) grid.set(key, []);
     grid.get(key).push(dot);
   }
-  return { dots, circular, text };
+  geometryCache.set(geometryKey, dots);
+  if (geometryCache.size > 4)
+    geometryCache.delete(geometryCache.keys().next().value);
+  return {
+    dots,
+    circular,
+    text,
+    layout,
+  };
 }
 
 export function drawArtwork(canvas, artwork, type, view, severity = 100) {

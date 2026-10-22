@@ -1,4 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800;900&display=swap");
+@font-face {
+  font-family: "Whisper Black";
+  src: url("./fonts/black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Whisper Playful";
+  src: url("./fonts/playful.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
 :root {
   --paper: #f6f5ef;
   --ink: #263e34;
@@ -1001,5 +1014,69 @@ footer {
   }
   .view-label {
     font-size: 9px;
+  }
+}
+
+.typography-controls {
+  margin-top: 26px;
+}
+.preset-options {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.preset-options button {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #dce1d2;
+  border-radius: 7px;
+  padding: 8px 4px;
+  font-size: 11px;
+}
+.preset-options button[aria-pressed="true"] {
+  background: #eaf0df;
+  border-color: #7e9567;
+  color: #34542e;
+}
+#font {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #dce1d2;
+  border-radius: 7px;
+  background: #fafbf6;
+  color: var(--ink);
+  font: inherit;
+  font-size: 12px;
+}
+.slider-title {
+  margin: 14px 0 8px;
+  font-weight: 400;
+  font-size: 11px;
+}
+.slider-title output {
+  color: #7a8969;
+  font-size: 10px;
+}
+.layout-hint,
+.font-status {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #788369;
+  margin: 9px 0 0;
+}
+.font-status:empty {
+  display: none;
+}
+.artboard canvas {
+  width: min(100%, 580px);
+}
+@media (min-width: 1450px) {
+  .artboard canvas {
+    width: 580px;
+  }
+}
+@media (max-width: 760px) {
+  .artboard canvas {
+    width: 100%;
   }
 }

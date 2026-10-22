@@ -131,17 +131,65 @@
                 ><span class="check">✓</span>
               </button>
             </div>
+            <div class="typography-controls">
+              <div class="field-title">
+                <label for="font"
+                  ><span class="step">03</span> 让每个字更清楚</label
+                ><span class="tiny">实时预览</span>
+              </div>
+              <div class="preset-options" role="group" aria-label="排版预设">
+                <button data-preset="clear" aria-pressed="true">
+                  舒展粗黑
+                </button>
+                <button data-preset="compact" aria-pressed="false">
+                  紧凑粗黑
+                </button>
+                <button data-preset="playful" aria-pressed="false">
+                  活泼圆体
+                </button>
+              </div>
+              <select id="font" aria-label="密语字体">
+                <option value="black">清晰粗黑 · 思源黑体</option>
+                <option value="playful">活泼圆体 · 站酷快乐体</option>
+              </select>
+              <div class="field-title slider-title">
+                <label for="font-size">目标字号</label
+                ><output id="font-size-label">270 px</output>
+              </div>
+              <input
+                id="font-size"
+                type="range"
+                min="140"
+                max="340"
+                step="10"
+                value="270"
+              />
+              <div class="field-title slider-title">
+                <label for="letter-spacing">字间留白</label
+                ><output id="letter-spacing-label">18%</output>
+              </div>
+              <input
+                id="letter-spacing"
+                type="range"
+                min="0"
+                max="40"
+                step="2"
+                value="18"
+              />
+              <p id="layout-hint" class="layout-hint" aria-live="polite"></p>
+              <p id="font-status" class="font-status" role="status"></p>
+            </div>
             <div class="field-title texture-title">
               <label for="density"
-                ><span class="step">03</span> 圆点的个性</label
-              ><output id="density-label">细腻</output>
+                ><span class="step">04</span> 圆点的个性</label
+              ><output id="density-label">超细腻</output>
             </div>
             <input
               id="density"
               type="range"
               min="0"
               max="2"
-              value="1"
+              value="2"
               step="1"
             />
             <div class="range-labels">

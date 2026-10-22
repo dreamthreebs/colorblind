@@ -1,5 +1,10 @@
 import { TYPES, splitPages, embedMessage, extractMessage } from "./core.js";
-import { makeArtwork, drawArtwork } from "./art.js";
+import {
+  makeArtwork,
+  drawArtwork,
+  DEFAULT_TYPOGRAPHY,
+  FONT_STYLES,
+} from "./art.js";
 
 const $ = (selector) => document.querySelector(selector),
   $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -7,7 +12,8 @@ const state = {
   type: "deutan",
   view: "original",
   severity: 100,
-  density: 1,
+  density: 2,
+  typography: { ...DEFAULT_TYPOGRAPHY },
   seed: Math.floor(Math.random() * 2 ** 32),
   pages: [],
   page: 0,
@@ -46,6 +52,19 @@ function draw() {
         : "一眼看见，还是藏得刚刚好？";
   $("#export-note").textContent =
     `${state.pages.length > 1 ? "下载当前卡片 · " : "1000 × 1000 高清原图 · "}附带整段可读回文字`;
+  const { fontSize, spacing } = state.artwork.layout;
+  $("#layout-hint").textContent =
+    `实际 ${fontSize} px · 字间留白 ${Math.round(spacing)} px${fontSize < state.typography.size ? " · 已自动缩小以完整显示" : " · 长文字会自动适配"}`;
+}
+function redrawCurrent() {
+  if (!state.pages.length) return;
+  state.artwork = makeArtwork(
+    state.pages[state.page],
+    state.density,
+    state.seed + state.page,
+    state.typography,
+  );
+  draw();
 }
 function generate({ newSeed = false, announce = false } = {}) {
   clearTimeout(generationTimer);
@@ -58,8 +77,7 @@ function generate({ newSeed = false, announce = false } = {}) {
   state.pages = splitPages(state.text);
   state.page = 0;
   if (newSeed) state.seed = Math.floor(Math.random() * 2 ** 32);
-  state.artwork = makeArtwork(state.pages[0], state.density, state.seed);
-  draw();
+  redrawCurrent();
   if (announce)
     toast(
       state.pages.length > 1
@@ -127,8 +145,70 @@ $$("[data-view]").forEach(
 $("#density").oninput = () => {
   state.density = Number($("#density").value);
   $("#density-label").textContent = ["大颗粒", "细腻", "超细腻"][state.density];
-  generate();
+  redrawCurrent();
 };
+const presets = {
+  clear: { font: "black", size: 270, spacing: 0.18 },
+  compact: { font: "black", size: 220, spacing: 0.08 },
+  playful: { font: "playful", size: 270, spacing: 0.22 },
+};
+function updateTypographyControls() {
+  $("#font").value = state.typography.font;
+  $("#font-size").value = state.typography.size;
+  $("#letter-spacing").value = Math.round(state.typography.spacing * 100);
+  $("#font-size-label").textContent = `${state.typography.size} px`;
+  $("#letter-spacing-label").textContent =
+    `${Math.round(state.typography.spacing * 100)}%`;
+  $$("[data-preset]").forEach((button) => {
+    const p = presets[button.dataset.preset];
+    button.setAttribute(
+      "aria-pressed",
+      String(Object.keys(p).every((k) => p[k] === state.typography[k])),
+    );
+  });
+}
+let fontRequest = 0;
+async function ensureFont() {
+  const request = ++fontRequest;
+  const name = state.typography.font;
+  const definition = FONT_STYLES[name];
+  $("#font-status").textContent = "正在加载本地字体…";
+  try {
+    const faces = await document.fonts.load(
+      `${definition.weight} 270px ${definition.family.split(",")[0]}`,
+    );
+    if (!faces.length) throw new Error("Font unavailable");
+    if (request !== fontRequest) return;
+    $("#font-status").textContent = "";
+    redrawCurrent();
+  } catch {
+    if (request === fontRequest)
+      $("#font-status").textContent =
+        "字体暂未加载，正在使用系统字体。刷新可重试。";
+  }
+}
+$$("[data-preset]").forEach(
+  (button) =>
+    (button.onclick = () => {
+      state.typography = { ...presets[button.dataset.preset] };
+      updateTypographyControls();
+      redrawCurrent();
+      ensureFont();
+    }),
+);
+$("#font").onchange = () => {
+  state.typography.font = $("#font").value;
+  updateTypographyControls();
+  redrawCurrent();
+  ensureFont();
+};
+for (const id of ["font-size", "letter-spacing"])
+  $("#" + id).oninput = () => {
+    state.typography.size = Number($("#font-size").value);
+    state.typography.spacing = Number($("#letter-spacing").value) / 100;
+    updateTypographyControls();
+    redrawCurrent();
+  };
 $("#severity").oninput = () => {
   state.severity = Number($("#severity").value);
   $("#severity-label").textContent = `${state.severity}%`;
@@ -140,12 +220,7 @@ for (const [id, delta] of [
 ])
   $("#" + id).onclick = () => {
     state.page += delta;
-    state.artwork = makeArtwork(
-      state.pages[state.page],
-      state.density,
-      state.seed + state.page,
-    );
-    draw();
+    redrawCurrent();
   };
 function switchTab(read) {
   $("#create-panel").hidden = read;
@@ -185,6 +260,7 @@ $("#download").onclick = async () => {
       type: state.type,
       page: state.page + 1,
       pages: state.pages.length,
+      typography: { ...state.typography },
     };
     // Always export original colors, regardless of the current simulation/reveal view.
     const canvas = document.createElement("canvas");
@@ -253,5 +329,4 @@ $("#use-decoded").onclick = () => {
   generate({ newSeed: true, announce: true });
 };
 generate();
-// If a web font arrives later, redraw the text mask using the final font metrics.
-document.fonts.ready.then(() => generate());
+ensureFont();
