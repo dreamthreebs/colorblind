@@ -5,7 +5,8 @@ import {
   DEFAULT_TYPOGRAPHY,
   FONT_STYLES,
   fontWeight,
-} from "./art.js?v=stroke-3";
+  PATTERNS,
+} from "./art.js?v=patterns-4";
 
 const $ = (selector) => document.querySelector(selector),
   $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -14,6 +15,7 @@ const state = {
   view: "original",
   severity: 100,
   density: 3,
+  pattern: "dots",
   typography: { ...DEFAULT_TYPOGRAPHY },
   seed: Math.floor(Math.random() * 2 ** 32),
   pages: [],
@@ -34,11 +36,18 @@ function updateCount() {
 }
 function draw() {
   if (!state.artwork) return;
-  drawArtwork($("#art"), state.artwork, state.type, state.view, state.severity);
+  drawArtwork(
+    $("#art"),
+    state.artwork,
+    state.type,
+    state.view,
+    state.severity,
+    state.pattern,
+  );
   $("#art").style.borderRadius = state.artwork.circular ? "50%" : "20px";
   $("#art").setAttribute(
     "aria-label",
-    `第 ${state.page + 1} 张点彩密语，${TYPES[state.type].name}，${{ original: "原始色彩", simulation: "色觉模拟", reveal: "高对比揭晓" }[state.view]}`,
+    `第 ${state.page + 1} 张点彩密语，${PATTERNS[state.pattern]}，${TYPES[state.type].name}，${{ original: "原始色彩", simulation: "色觉模拟", reveal: "高对比揭晓" }[state.view]}`,
   );
   $("#pagination").hidden = state.pages.length <= 1;
   $("#page-label").textContent = `${state.page + 1} / ${state.pages.length} 张`;
@@ -56,7 +65,44 @@ function draw() {
   const { fontSize, spacing } = state.artwork.layout;
   $("#layout-hint").textContent =
     `实际 ${fontSize} px · 字间留白 ${Math.round(spacing)} px${fontSize < state.typography.size ? " · 已自动缩小以完整显示" : " · 长文字会自动适配"}`;
+  $("#pattern-hint").hidden = state.pattern === "dots";
+  $("#pattern-label").textContent = PATTERNS[state.pattern];
+  updateDetail();
 }
+function updateDetail() {
+  drawArtwork(
+    $("#detail-canvas"),
+    state.artwork,
+    state.type,
+    state.view,
+    state.severity,
+    state.pattern,
+    { x: 330, y: 300, size: 120 },
+  );
+}
+$("#detail-toggle").onclick = () => {
+  const expanded = $("#detail-panel").hidden;
+  $("#detail-panel").hidden = !expanded;
+  $("#detail-toggle").setAttribute("aria-expanded", String(expanded));
+  $("#detail-toggle").textContent = expanded ? "收起特写 −" : "花纹特写 ＋";
+};
+$$("[data-pattern]").forEach(
+  (button) =>
+    (button.onclick = () => {
+      state.pattern = button.dataset.pattern;
+      $$("[data-pattern]").forEach((b) =>
+        b.setAttribute("aria-pressed", String(b === button)),
+      );
+      draw();
+    }),
+);
+$("#large-patterns").onclick = () => {
+  state.density = 0;
+  $("#density").value = 0;
+  $("#density-label").textContent = "大颗粒";
+  redrawCurrent();
+  toast("已切换大颗粒；复杂字可再调回微点。");
+};
 function redrawCurrent() {
   if (!state.pages.length) return;
   state.artwork = makeArtwork(
@@ -274,11 +320,19 @@ $("#download").onclick = async () => {
       page: state.page + 1,
       pages: state.pages.length,
       typography: { ...state.typography },
+      pattern: state.pattern,
     };
     // Always export original colors, regardless of the current simulation/reveal view.
     const canvas = document.createElement("canvas");
     canvas.width = canvas.height = 1000;
-    drawArtwork(canvas, state.artwork, state.type, "original");
+    drawArtwork(
+      canvas,
+      state.artwork,
+      state.type,
+      "original",
+      100,
+      state.pattern,
+    );
     const blob = await new Promise((resolve) =>
       canvas.toBlob(resolve, "image/png"),
     );

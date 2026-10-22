@@ -160,11 +160,108 @@ export function makeArtwork(text, density, seed, typography = {}) {
   };
 }
 
-export function drawArtwork(canvas, artwork, type, view, severity = 100) {
+export const PATTERNS = {
+  dots: "经典圆点",
+  flowers: "小花花",
+  stars: "星星糖",
+  hearts: "爱心雨",
+  confetti: "混搭彩屑",
+};
+const paths = new Map();
+function patternPath(shape) {
+  if (paths.has(shape)) return paths.get(shape);
+  const path = new Path2D();
+  if (shape === "flowers") {
+    for (let i = 0; i <= 80; i++) {
+      const angle = (i / 80) * Math.PI * 2;
+      const radius = 0.78 + 0.22 * Math.cos(angle * 5);
+      const x = Math.cos(angle) * radius,
+        y = Math.sin(angle) * radius;
+      if (i === 0) path.moveTo(x, y);
+      else path.lineTo(x, y);
+    }
+  } else if (shape === "stars") {
+    for (let i = 0; i < 10; i++) {
+      const angle = (i * Math.PI) / 5 - Math.PI / 2;
+      const radius = i % 2 ? 0.58 : 1;
+      if (i === 0)
+        path.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+      else path.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+    }
+  } else if (shape === "hearts") {
+    path.moveTo(0, 0.92);
+    path.bezierCurveTo(-1.35, 0.05, -0.78, -1.06, 0, -0.35);
+    path.bezierCurveTo(0.78, -1.06, 1.35, 0.05, 0, 0.92);
+  } else if (shape === "diamond") {
+    path.moveTo(0, -1);
+    path.lineTo(0.8, 0);
+    path.lineTo(0, 1);
+    path.lineTo(-0.8, 0);
+  } else if (shape === "sprinkle") {
+    path.roundRect(-0.88, -0.34, 1.76, 0.68, 0.3);
+  } else {
+    path.arc(0, 0, 1, 0, Math.PI * 2);
+    if (shape === "ring") {
+      path.moveTo(0.5, 0);
+      path.arc(0, 0, 0.5, 0, Math.PI * 2, true);
+    }
+  }
+  path.closePath();
+  paths.set(shape, path);
+  return path;
+}
+
+// Shape and rotation depend only on geometry, never on whether a dot is text.
+export function motifFor(dot, pattern) {
+  const hash =
+    (Math.imul(Math.floor(dot.x * 100), 73856093) ^
+      Math.imul(Math.floor(dot.y * 100), 19349663)) >>>
+    0;
+  const choices = [
+    "dots",
+    "flowers",
+    "stars",
+    "hearts",
+    "diamond",
+    "sprinkle",
+    "ring",
+  ];
+  return {
+    shape:
+      pattern === "confetti"
+        ? choices[hash % choices.length]
+        : PATTERNS[pattern]
+          ? pattern
+          : "dots",
+    angle: ((hash % 360) * Math.PI) / 180,
+  };
+}
+
+export function drawArtwork(
+  canvas,
+  artwork,
+  type,
+  view,
+  severity = 100,
+  pattern = "dots",
+  viewport = { x: 0, y: 0, size: 1000 },
+) {
   const ctx = canvas.getContext("2d");
+  const scale = canvas.width / viewport.size;
+  const tx = -viewport.x * scale,
+    ty = -viewport.y * scale;
+  ctx.resetTransform();
   ctx.fillStyle = "#f0f2e9";
-  ctx.fillRect(0, 0, 1000, 1000);
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(scale, 0, 0, scale, tx, ty);
   for (const d of artwork.dots) {
+    if (
+      d.x + d.r < viewport.x ||
+      d.x - d.r > viewport.x + viewport.size ||
+      d.y + d.r < viewport.y ||
+      d.y - d.r > viewport.y + viewport.size
+    )
+      continue;
     let rgb = colorFor(d.isText, d.variation, type);
     if (view === "simulation") rgb = simulate(rgb, type, severity);
     ctx.fillStyle =
@@ -173,8 +270,25 @@ export function drawArtwork(canvas, artwork, type, view, severity = 100) {
           ? "#294e3e"
           : "#e0e5d6"
         : `rgb(${rgb.map((v) => Math.round(linearToSrgb(v) * 255)).join(",")})`;
-    ctx.beginPath();
-    ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
-    ctx.fill();
+    if (pattern === "dots") {
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      const { shape, angle } = motifFor(d, pattern);
+      const c = Math.cos(angle) * d.r,
+        s = Math.sin(angle) * d.r;
+      ctx.setTransform(
+        c * scale,
+        s * scale,
+        -s * scale,
+        c * scale,
+        d.x * scale + tx,
+        d.y * scale + ty,
+      );
+      ctx.fill(patternPath(shape));
+      ctx.setTransform(scale, 0, 0, scale, tx, ty);
+    }
   }
+  ctx.resetTransform();
 }

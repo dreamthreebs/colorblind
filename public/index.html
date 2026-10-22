@@ -10,8 +10,8 @@
     />
     <title>色彩密语 Color Whisper · 把心事藏进颜色里</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./style.css?v=stroke-3" />
-    <script type="module" src="./app.js?v=stroke-3"></script>
+    <link rel="stylesheet" href="./style.css?v=patterns-4" />
+    <script type="module" src="./app.js?v=patterns-4"></script>
   </head>
   <body>
     <header class="header wrap">
@@ -198,8 +198,34 @@
               <p id="font-status" class="font-status" role="status"></p>
             </div>
             <div class="field-title texture-title">
-              <label for="density"
-                ><span class="step">04</span> 圆点的个性</label
+              <span><span class="step">04</span> 给圆点换个造型</span
+              ><output id="pattern-label">经典圆点</output>
+            </div>
+            <div class="pattern-options" role="group" aria-label="花纹样式">
+              <button data-pattern="dots" aria-pressed="true">
+                <span aria-hidden="true">●</span>圆点
+              </button>
+              <button data-pattern="flowers" aria-pressed="false">
+                <span aria-hidden="true">✿</span>小花
+              </button>
+              <button data-pattern="stars" aria-pressed="false">
+                <span aria-hidden="true">★</span>星星
+              </button>
+              <button data-pattern="hearts" aria-pressed="false">
+                <span aria-hidden="true">♥</span>爱心
+              </button>
+              <button data-pattern="confetti" aria-pressed="false">
+                <span aria-hidden="true">✦</span>混搭
+              </button>
+            </div>
+            <div id="pattern-hint" class="pattern-hint" hidden>
+              <span>微点适合读字，大颗粒更能看清花纹。</span
+              ><button id="large-patterns" class="text-button">
+                看看大花纹 ↗
+              </button>
+            </div>
+            <div class="field-title slider-title">
+              <label for="density">颗粒大小</label
               ><output id="density-label">微点</output>
             </div>
             <input
@@ -259,14 +285,23 @@
         </div>
         <div class="preview-panel">
           <div class="preview-header">
-            <span><i></i> YOUR LITTLE SECRET</span
-            ><button
-              id="shuffle"
-              class="text-button"
-              title="保持文字与设置，重新排列圆点"
-            >
-              ↻ 换个排列
-            </button>
+            <span><i></i> YOUR LITTLE SECRET</span>
+            <div class="preview-actions">
+              <button
+                id="detail-toggle"
+                class="text-button"
+                aria-expanded="false"
+                aria-controls="detail-panel"
+              >
+                花纹特写 ＋</button
+              ><button
+                id="shuffle"
+                class="text-button"
+                title="保持文字与设置，重新排列圆点"
+              >
+                ↻ 换个排列
+              </button>
+            </div>
           </div>
           <div class="artboard">
             <canvas
@@ -276,6 +311,19 @@
               aria-label="生成的点彩密语图片"
             ></canvas
             ><span class="art-note">a message hiding in plain sight</span>
+          </div>
+          <div id="detail-panel" class="detail-panel" hidden>
+            <canvas
+              id="detail-canvas"
+              width="360"
+              height="360"
+              aria-label="当前图片左上区域的花纹放大特写"
+            ></canvas>
+            <div>
+              <span class="eyebrow">A CLOSER LOOK</span>
+              <p>放大看看，<br />每一颗都有小心思。</p>
+              <small>当前图片的局部特写<br />下载仍保存整张图片</small>
+            </div>
           </div>
           <div class="page-control" id="pagination" hidden>
             <button id="prev" aria-label="上一张">←</button

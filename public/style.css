@@ -1067,6 +1067,107 @@ footer {
 .font-status:empty {
   display: none;
 }
+.pattern-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+.pattern-options button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  padding: 9px 2px;
+  border: 1px solid #dce1d2;
+  border-radius: 9px;
+  background: #fafbf6;
+  font-size: 10px;
+  color: #78846a;
+}
+.pattern-options button span {
+  font-size: 23px;
+  line-height: 1.2;
+  color: #a4b27c;
+}
+.pattern-options button:nth-child(2) span,
+.pattern-options button:nth-child(4) span {
+  color: #d98e71;
+}
+.pattern-options button[aria-pressed="true"] {
+  border-color: #7e9567;
+  background: #eaf0df;
+  color: #294e3e;
+  box-shadow: inset 0 0 0 1px #7e9567;
+}
+.pattern-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  column-gap: 8px;
+  margin-top: 9px;
+  font-size: 10px;
+  line-height: 1.7;
+  color: #788369;
+}
+.preview-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.detail-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  margin: 0 auto 20px;
+  padding: 14px;
+  border: 1px solid #dce2d1;
+  border-radius: 13px;
+  background: #f7f8f0;
+  max-width: 100%;
+}
+.detail-panel canvas {
+  display: block;
+  width: 180px;
+  height: 180px;
+  border-radius: 9px;
+}
+.detail-panel p {
+  font-size: 14px;
+  line-height: 1.9;
+  margin: 12px 0;
+}
+.detail-panel small {
+  font-size: 10px;
+  line-height: 1.7;
+  color: #89947c;
+}
+@media (max-width: 760px) {
+  .preview-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .preview-actions {
+    margin-left: auto;
+  }
+  .detail-panel {
+    gap: 12px;
+    padding: 10px;
+  }
+  .detail-panel canvas {
+    width: 125px;
+    height: 125px;
+  }
+  .detail-panel p {
+    font-size: 12px;
+  }
+  .detail-panel .eyebrow {
+    font-size: 8px;
+    letter-spacing: 0.5px;
+  }
+}
 .artboard canvas {
   width: min(100%, 580px);
 }
