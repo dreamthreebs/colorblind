@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f5ef">
+  <meta name="description" content="把想说的话藏进彩色圆点。探索不同色觉视角，制作并下载属于你的点彩密语。">
+  <title>色彩密语 Color Whisper · 把心事藏进颜色里</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="header wrap">
+    <a class="brand" href="./" aria-label="色彩密语首页"><span class="brandmark"><i></i><i></i><i></i><i></i></span><span>色彩密语<small>COLOR WHISPER</small></span></a>
+    <nav aria-label="主导航"><a href="#studio" class="nav-active">制作密语</a><a href="#how">怎么玩</a><a href="https://github.com/dreamthreebs/colorblind" target="_blank" rel="noopener" class="github">GitHub <span>↗</span></a></nav>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <div><div class="eyebrow"><span></span> A LITTLE SECRET, A LOT OF COLOR</div><h1>有些话，<br>藏在<span class="color-word">颜色</span>里。<svg class="spark" viewBox="0 0 60 60" aria-hidden="true"><path d="M30 3v54M3 30h54M11 11l38 38M11 49l38-38"/></svg></h1><p>把聊天变成一张点彩密语。<br class="mobile-only">换个视角，看看颜色藏住了什么。</p></div>
+      <div class="hero-note"><span class="note-arrow">↙</span><p>给懂你的人，<br>一点不一样的暗示。</p><div class="mini-dots"><i></i><i></i><i></i><i></i><i></i></div></div>
+      <span class="hero-index">NO. 001 / 色彩实验</span>
+    </section>
+    <section id="studio" class="studio" aria-label="密语制作工作台">
+      <div class="controls">
+        <div class="tabs" role="tablist" aria-label="选择功能"><button id="create-tab" role="tab" aria-selected="true" aria-controls="create-panel">✧ 制作密语</button><button id="read-tab" role="tab" aria-selected="false" aria-controls="read-panel" tabindex="-1">⌕ 读回密语</button></div>
+        <div id="create-panel" role="tabpanel" aria-labelledby="create-tab">
+          <div class="field-title"><label for="message"><span class="step">01</span> 想藏起什么话？</label><button class="text-button" id="sample">换句灵感 ↻</button></div>
+          <div class="textarea-wrap"><textarea id="message" maxlength="600" spellcheck="false" placeholder="一句暗号、一段聊天，或者一点小心思…">好事发生</textarea><div class="input-bottom"><span>中文、英文和数字都可以</span><span id="count">4 / 600</span></div></div>
+          <div class="suggestions"><button data-message="偷偷喜欢你">偷偷喜欢你</button><button data-message="今天不想上班">今天不想上班</button><button data-message="你好，世界">你好，世界</button></div>
+          <div class="field-title type-title"><label for="vision"><span class="step">02</span> 选择色觉方向</label><span class="tiny">让哪种视角更难辨认？</span></div>
+          <div class="type-options" id="vision" role="group" aria-label="目标色觉类型">
+            <button data-type="deutan" class="selected" aria-pressed="true"><span class="type-swatch deutan"></span><strong>绿色觉差异</strong><small>Deutan · 红绿方向</small><span class="check">✓</span></button>
+            <button data-type="protan" aria-pressed="false"><span class="type-swatch protan"></span><strong>红色觉差异</strong><small>Protan · 红绿方向</small><span class="check">✓</span></button>
+            <button data-type="tritan" aria-pressed="false"><span class="type-swatch tritan"></span><strong>蓝色觉差异</strong><small>Tritan · 蓝黄方向</small><span class="check">✓</span></button>
+          </div>
+          <div class="field-title texture-title"><label for="density"><span class="step">03</span> 圆点的个性</label><output id="density-label">细腻</output></div>
+          <input id="density" type="range" min="0" max="2" value="1" step="1"><div class="range-labels"><span>大颗粒</span><span>细腻</span><span>超细腻</span></div>
+          <button id="generate" class="primary"><span>✧</span> 生成我的密语 <span>↗</span></button>
+          <p class="local-note"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="7" width="8" height="7" rx="2"/><path d="M5.5 7V4a2.5 2.5 0 0 1 5 0v3"/></svg>文字和图片在浏览器本地处理</p>
+        </div>
+        <div id="read-panel" role="tabpanel" aria-labelledby="read-tab" hidden>
+          <div class="field-title"><strong><span class="step">01</span> 把密语带回来</strong></div>
+          <label class="upload" for="upload"><span>↥</span><strong>选择一张密语 PNG</strong><small>或将文件拖到这里 · 最大 20 MB</small><input type="file" id="upload" accept="image/png,.png"></label>
+          <p class="read-help">可读回本站下载的原始 PNG 内附文字。这不是 OCR；截图、社交平台压缩或其他色觉检测图可能无法读取。</p>
+          <div id="read-result" hidden><span class="eyebrow">密语已送达</span><pre id="decoded"></pre><button id="use-decoded" class="primary">用这段话再做一张 ↗</button></div>
+          <p id="read-error" class="error" role="alert"></p>
+          <div class="read-tip">一份密语，一份原文。<br><span>图片附带的文字没有加密，任何人都可以读回。</span></div>
+        </div>
+      </div>
+      <div class="preview-panel">
+        <div class="preview-header"><span><i></i> YOUR LITTLE SECRET</span><button id="shuffle" class="text-button" title="保持文字与设置，重新排列圆点">↻ 换个排列</button></div>
+        <div class="artboard"><canvas id="art" width="1000" height="1000" aria-label="生成的点彩密语图片"></canvas><span class="art-note">a message hiding in plain sight</span></div>
+        <div class="page-control" id="pagination" hidden><button id="prev" aria-label="上一张">←</button><span id="page-label"></span><button id="next" aria-label="下一张">→</button></div>
+        <div class="view-bar"><span class="view-label">换个视角</span><div role="group" aria-label="图片预览模式"><button data-view="original" class="active" aria-pressed="true">原始色彩</button><button data-view="simulation" aria-pressed="false">色觉模拟</button><button data-view="reveal" aria-pressed="false">揭晓文字</button></div></div>
+        <div id="simulation-settings" hidden><label for="severity">模拟程度 <output id="severity-label">100%</output></label><input id="severity" type="range" min="0" max="100" step="10" value="100"><small>0% 为原始色彩，100% 为模型的完全缺失端点；中间程度仅为近似。</small></div>
+        <div class="preview-bottom"><p id="preview-caption">一眼看见，还是藏得刚刚好？</p><button id="download" class="download">↓ 下载 PNG</button></div>
+        <p id="export-note" class="export-note">1000 × 1000 高清原图 · 附带可读回文字</p>
+      </div>
+    </section>
+    <section id="how" class="how"><div class="section-intro"><span class="eyebrow">SMALL DOTS. DIFFERENT WORLDS.</span><h2>同一张图，不同的世界。</h2><p>颜色让我们看见，也让我们好奇。</p></div><div class="how-grid"><article><span class="how-num">01 / WRITE</span><h3>把话说给颜色听</h3><p>写下你的小心思，选一种色觉方向。长聊天会自动分成多张卡片。</p></article><article><span class="how-num">02 / EXPLORE</span><h3>借一双不同的眼睛</h3><p>切换模拟视角，观察文字如何融进圆点里。每个人的感受都会有差异。</p></article><article><span class="how-num">03 / SHARE</span><h3>让暗号遇到懂的人</h3><p>下载原始 PNG，发给朋友猜一猜。保留原图，也能在这里读回那句话。</p></article></div></section>
+    <aside class="science-note"><span>✳</span><p>这是一个色彩游戏，不是色觉诊断或安全加密工具。配色针对模型的完全缺失端点优化，不能保证所有色弱者都无法辨认。模拟参考 <a href="https://www.inf.ufrgs.br/~oliveira/pubs_files/CVD_Simulation/CVD_Simulation.html" target="_blank" rel="noopener">Machado 等人的色觉模型 ↗</a>；蓝黄色觉模拟尤其应视为近似。请把它用于有趣的交流，而不是阻挡别人获取重要信息。</p></aside>
+  </main>
+  <footer class="wrap"><span>色彩密语 <span class="footer-dot">●</span> Made of little dots & big feelings.</span><span>每一种视角，都值得被看见。</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
