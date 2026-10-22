@@ -1221,30 +1221,43 @@ footer {
 .palette-swatch i {
   display: block;
   border-radius: 50%;
+  flex-shrink: 0;
   width: 21px;
   height: 21px;
-  background: #e1b955;
+  background: var(--swatch-a);
 }
 .palette-swatch i:nth-child(2) {
   width: 15px;
   height: 15px;
-  background: #77b487;
+  background: var(--swatch-b);
 }
 .palette-swatch i:nth-child(3) {
   width: 26px;
   height: 26px;
-  background: #80a5d3;
+  background: var(--swatch-c);
 }
 .palette-swatch i:nth-child(4) {
-  width: 13px;
-  height: 13px;
-  background: #c7a6ce;
+  width: 10px;
+  height: 10px;
+  background: var(--swatch-d);
 }
-.palette-swatch.classic i:nth-child(odd) {
-  background: #cf994f;
+.palette-swatch.garden {
+  --swatch-a: #ceaf93;
+  --swatch-b: #9bc18f;
+  --swatch-c: #a5c798;
+  --swatch-d: #99aab1;
 }
-.palette-swatch.classic i:nth-child(even) {
-  background: #80a768;
+.palette-swatch.mist {
+  --swatch-a: #bf9abb;
+  --swatch-b: #8eb0b9;
+  --swatch-c: #99bac2;
+  --swatch-d: #b8b5a6;
+}
+.palette-swatch.classic {
+  --swatch-a: #cf994f;
+  --swatch-b: #80a768;
+  --swatch-c: #cf994f;
+  --swatch-d: #80a768;
 }
 .optional-patterns {
   margin-top: 16px;
@@ -1258,4 +1271,18 @@ footer {
 .optional-patterns summary span {
   float: right;
   font-size: 11px;
+}
+
+.palette-options [data-palette="classic"] {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.palette-options [data-palette="classic"] .palette-swatch {
+  display: none;
+}
+.palette-options [data-palette="classic"] small {
+  margin-top: 0;
 }

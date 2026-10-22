@@ -1,9 +1,10 @@
 import {
   TYPES,
+  PALETTES,
   splitPages,
   embedMessage,
   extractMessage,
-} from "./core.js?v=color-5";
+} from "./core.js?v=harmony-6";
 import {
   makeArtwork,
   drawArtwork,
@@ -11,7 +12,7 @@ import {
   FONT_STYLES,
   fontWeight,
   PATTERNS,
-} from "./art.js?v=color-5";
+} from "./art.js?v=harmony-6";
 
 const $ = (selector) => document.querySelector(selector),
   $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -20,7 +21,7 @@ const state = {
   view: "original",
   severity: 100,
   density: 0,
-  palette: "colorful",
+  palette: "garden",
   pattern: "dots",
   typography: { ...DEFAULT_TYPOGRAPHY },
   seed: Math.floor(Math.random() * 2 ** 32),
@@ -75,8 +76,7 @@ function draw() {
     `实际 ${fontSize} px · 字间留白 ${Math.round(spacing)} px${fontSize < state.typography.size ? " · 已自动缩小以完整显示" : " · 长文字会自动适配"}`;
   $("#pattern-hint").hidden = state.pattern === "dots";
   $("#pattern-label").textContent = PATTERNS[state.pattern];
-  $("#palette-label").textContent =
-    state.palette === "colorful" ? "缤纷彩点" : "经典双色";
+  $("#palette-label").textContent = PALETTES[state.palette]?.name || "经典双色";
   updateDetail();
 }
 function updateDetail() {

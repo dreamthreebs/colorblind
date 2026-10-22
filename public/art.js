@@ -1,4 +1,4 @@
-import { random, colorFor, linearToSrgb, simulate } from "./core.js?v=color-5";
+import { random, colorFor, linearToSrgb, simulate } from "./core.js?v=harmony-6";
 
 export const FONT_STYLES = {
   black: {

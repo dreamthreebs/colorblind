@@ -61,16 +61,30 @@ export function splitPages(text, size = 36) {
   if (page) pages.push(page);
   return pages.length ? pages : [""];
 }
-// Shared hue anchors in linear RGB. Both sides of a letter use the same
-// anchors; only the target color-confusion direction distinguishes them.
-export const COLORFUL_BASES = [
-  [0.4, 0.48, 0.06],
-  [0.36, 0.52, 0.32],
-  [0.32, 0.38, 0.7],
-  [0.29, 0.24, 0.55],
-  [0.48, 0.28, 0.07],
-  [0.5, 0.56, 0.38],
-];
+// Each theme has neighboring tones plus one quiet accent in sixteen dots.
+// Hue selection is shared by text/background; accents carry no text signal.
+export const PALETTES = {
+  garden: {
+    name: "奶油花园",
+    bases: [
+      [0.46, 0.48, 0.29],
+      [0.42, 0.44, 0.27],
+      [0.49, 0.5, 0.32],
+    ],
+    amplitude: 0.17,
+    accent: [0.32, 0.4, 0.44],
+  },
+  mist: {
+    name: "雾蓝暮色",
+    bases: [
+      [0.4, 0.38, 0.49],
+      [0.37, 0.35, 0.46],
+      [0.43, 0.41, 0.52],
+    ],
+    amplitude: 0.14,
+    accent: [0.48, 0.46, 0.38],
+  },
+};
 export function colorFor(
   isText,
   variation,
@@ -79,25 +93,29 @@ export function colorFor(
   hue = 0,
 ) {
   const { direction } = TYPES[type];
-  const base =
-    palette === "colorful"
-      ? COLORFUL_BASES[hue % COLORFUL_BASES.length]
-      : TYPES[type].base;
-  let amplitude = type === "tritan" ? 0.26 : 0.31;
-  // Limit the pair together before conversion, so gamut clipping cannot
-  // create an unintended luminance clue in the simulated view.
-  if (palette === "colorful") {
+  const theme = PALETTES[palette];
+  const slot = hue % 16;
+  // A narrow brightness range keeps the palette soft instead of speckled.
+  const brightness = theme ? 0.92 + (variation - 0.67) * 0.24 : variation;
+  if (theme && slot === 15) return theme.accent.map((v) => v * brightness);
+  const base = theme
+    ? theme.bases[slot % theme.bases.length]
+    : TYPES[type].base;
+  let amplitude = theme ? theme.amplitude : type === "tritan" ? 0.26 : 0.31;
+  // Limit both sides together before conversion to preserve their confusion
+  // direction, rather than clipping channels independently at the gamut edge.
+  if (theme) {
     for (let i = 0; i < 3; i++) {
       amplitude = Math.min(
         amplitude,
-        (Math.max(0, Math.min(base[i], 1 / variation - base[i])) /
+        (Math.max(0, Math.min(base[i], 1 / brightness - base[i])) /
           Math.abs(direction[i])) *
           0.98,
       );
     }
   }
   return base.map((value, i) =>
-    clamp((value + (isText ? 1 : -1) * amplitude * direction[i]) * variation),
+    clamp((value + (isText ? 1 : -1) * amplitude * direction[i]) * brightness),
   );
 }
 
