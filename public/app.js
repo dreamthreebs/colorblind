@@ -1,4 +1,9 @@
-import { TYPES, splitPages, embedMessage, extractMessage } from "./core.js";
+import {
+  TYPES,
+  splitPages,
+  embedMessage,
+  extractMessage,
+} from "./core.js?v=color-5";
 import {
   makeArtwork,
   drawArtwork,
@@ -6,7 +11,7 @@ import {
   FONT_STYLES,
   fontWeight,
   PATTERNS,
-} from "./art.js?v=patterns-4";
+} from "./art.js?v=color-5";
 
 const $ = (selector) => document.querySelector(selector),
   $$ = (selector) => [...document.querySelectorAll(selector)];
@@ -14,7 +19,8 @@ const state = {
   type: "deutan",
   view: "original",
   severity: 100,
-  density: 3,
+  density: 0,
+  palette: "colorful",
   pattern: "dots",
   typography: { ...DEFAULT_TYPOGRAPHY },
   seed: Math.floor(Math.random() * 2 ** 32),
@@ -43,6 +49,8 @@ function draw() {
     state.view,
     state.severity,
     state.pattern,
+    undefined,
+    state.palette,
   );
   $("#art").style.borderRadius = state.artwork.circular ? "50%" : "20px";
   $("#art").setAttribute(
@@ -67,6 +75,8 @@ function draw() {
     `实际 ${fontSize} px · 字间留白 ${Math.round(spacing)} px${fontSize < state.typography.size ? " · 已自动缩小以完整显示" : " · 长文字会自动适配"}`;
   $("#pattern-hint").hidden = state.pattern === "dots";
   $("#pattern-label").textContent = PATTERNS[state.pattern];
+  $("#palette-label").textContent =
+    state.palette === "colorful" ? "缤纷彩点" : "经典双色";
   updateDetail();
 }
 function updateDetail() {
@@ -78,14 +88,24 @@ function updateDetail() {
     state.severity,
     state.pattern,
     { x: 330, y: 300, size: 120 },
+    state.palette,
   );
 }
 $("#detail-toggle").onclick = () => {
   const expanded = $("#detail-panel").hidden;
   $("#detail-panel").hidden = !expanded;
   $("#detail-toggle").setAttribute("aria-expanded", String(expanded));
-  $("#detail-toggle").textContent = expanded ? "收起特写 −" : "花纹特写 ＋";
+  $("#detail-toggle").textContent = expanded ? "收起特写 −" : "彩点特写 ＋";
 };
+$$("[data-palette]").forEach((button) => {
+  button.onclick = () => {
+    state.palette = button.dataset.palette;
+    $$("[data-palette]").forEach((b) =>
+      b.setAttribute("aria-pressed", String(b === button)),
+    );
+    draw();
+  };
+});
 $$("[data-pattern]").forEach(
   (button) =>
     (button.onclick = () => {
@@ -321,6 +341,7 @@ $("#download").onclick = async () => {
       pages: state.pages.length,
       typography: { ...state.typography },
       pattern: state.pattern,
+      palette: state.palette,
     };
     // Always export original colors, regardless of the current simulation/reveal view.
     const canvas = document.createElement("canvas");
@@ -332,6 +353,8 @@ $("#download").onclick = async () => {
       "original",
       100,
       state.pattern,
+      undefined,
+      state.palette,
     );
     const blob = await new Promise((resolve) =>
       canvas.toBlob(resolve, "image/png"),

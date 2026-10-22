@@ -10,8 +10,8 @@
     />
     <title>色彩密语 Color Whisper · 把心事藏进颜色里</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="./style.css?v=patterns-4" />
-    <script type="module" src="./app.js?v=patterns-4"></script>
+    <link rel="stylesheet" href="./style.css?v=color-5" />
+    <script type="module" src="./app.js?v=color-5"></script>
   </head>
   <body>
     <header class="header wrap">
@@ -198,42 +198,64 @@
               <p id="font-status" class="font-status" role="status"></p>
             </div>
             <div class="field-title texture-title">
-              <span><span class="step">04</span> 给圆点换个造型</span
-              ><output id="pattern-label">经典圆点</output>
+              <span><span class="step">04</span> 圆点配色</span
+              ><output id="palette-label">缤纷彩点</output>
             </div>
-            <div class="pattern-options" role="group" aria-label="花纹样式">
-              <button data-pattern="dots" aria-pressed="true">
-                <span aria-hidden="true">●</span>圆点
+            <div class="palette-options" role="group" aria-label="圆点配色">
+              <button data-palette="colorful" aria-pressed="true">
+                <span class="palette-swatch colorful" aria-hidden="true"
+                  ><i></i><i></i><i></i><i></i
+                ></span>
+                <strong>缤纷彩点</strong><small>黄、绿、蓝，大小错落</small>
               </button>
-              <button data-pattern="flowers" aria-pressed="false">
-                <span aria-hidden="true">✿</span>小花
-              </button>
-              <button data-pattern="stars" aria-pressed="false">
-                <span aria-hidden="true">★</span>星星
-              </button>
-              <button data-pattern="hearts" aria-pressed="false">
-                <span aria-hidden="true">♥</span>爱心
-              </button>
-              <button data-pattern="confetti" aria-pressed="false">
-                <span aria-hidden="true">✦</span>混搭
+              <button data-palette="classic" aria-pressed="false">
+                <span class="palette-swatch classic" aria-hidden="true"
+                  ><i></i><i></i><i></i><i></i
+                ></span>
+                <strong>经典双色</strong><small>配色集中，更容易读字</small>
               </button>
             </div>
-            <div id="pattern-hint" class="pattern-hint" hidden>
-              <span>微点适合读字，大颗粒更能看清花纹。</span
-              ><button id="large-patterns" class="text-button">
-                看看大花纹 ↗
-              </button>
-            </div>
+            <p class="layout-hint">
+              大圆点更活泼；复杂字可调小颗粒。切换色觉类型，配色也会随之调整。
+            </p>
+            <details class="optional-patterns">
+              <summary>
+                其他形状 <span id="pattern-label">经典圆点</span>
+              </summary>
+              <div class="pattern-options" role="group" aria-label="花纹样式">
+                <button data-pattern="dots" aria-pressed="true">
+                  <span aria-hidden="true">●</span>圆点
+                </button>
+                <button data-pattern="flowers" aria-pressed="false">
+                  <span aria-hidden="true">✿</span>小花
+                </button>
+                <button data-pattern="stars" aria-pressed="false">
+                  <span aria-hidden="true">★</span>星星
+                </button>
+                <button data-pattern="hearts" aria-pressed="false">
+                  <span aria-hidden="true">♥</span>爱心
+                </button>
+                <button data-pattern="confetti" aria-pressed="false">
+                  <span aria-hidden="true">✦</span>混搭
+                </button>
+              </div>
+              <div id="pattern-hint" class="pattern-hint" hidden>
+                <span>微点适合读字，大颗粒更能看清花纹。</span
+                ><button id="large-patterns" class="text-button">
+                  看看大花纹 ↗
+                </button>
+              </div>
+            </details>
             <div class="field-title slider-title">
               <label for="density">颗粒大小</label
-              ><output id="density-label">微点</output>
+              ><output id="density-label">大颗粒</output>
             </div>
             <input
               id="density"
               type="range"
               min="0"
               max="3"
-              value="3"
+              value="0"
               step="1"
             />
             <div class="range-labels">
@@ -293,7 +315,7 @@
                 aria-expanded="false"
                 aria-controls="detail-panel"
               >
-                花纹特写 ＋</button
+                彩点特写 ＋</button
               ><button
                 id="shuffle"
                 class="text-button"
@@ -317,7 +339,7 @@
               id="detail-canvas"
               width="360"
               height="360"
-              aria-label="当前图片左上区域的花纹放大特写"
+              aria-label="当前图片左上区域的彩点放大特写"
             ></canvas>
             <div>
               <span class="eyebrow">A CLOSER LOOK</span>

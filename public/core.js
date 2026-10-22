@@ -61,9 +61,41 @@ export function splitPages(text, size = 36) {
   if (page) pages.push(page);
   return pages.length ? pages : [""];
 }
-export function colorFor(isText, variation, type) {
-  const { base, direction } = TYPES[type];
-  const amplitude = type === "tritan" ? 0.26 : 0.31;
+// Shared hue anchors in linear RGB. Both sides of a letter use the same
+// anchors; only the target color-confusion direction distinguishes them.
+export const COLORFUL_BASES = [
+  [0.4, 0.48, 0.06],
+  [0.36, 0.52, 0.32],
+  [0.32, 0.38, 0.7],
+  [0.29, 0.24, 0.55],
+  [0.48, 0.28, 0.07],
+  [0.5, 0.56, 0.38],
+];
+export function colorFor(
+  isText,
+  variation,
+  type,
+  palette = "classic",
+  hue = 0,
+) {
+  const { direction } = TYPES[type];
+  const base =
+    palette === "colorful"
+      ? COLORFUL_BASES[hue % COLORFUL_BASES.length]
+      : TYPES[type].base;
+  let amplitude = type === "tritan" ? 0.26 : 0.31;
+  // Limit the pair together before conversion, so gamut clipping cannot
+  // create an unintended luminance clue in the simulated view.
+  if (palette === "colorful") {
+    for (let i = 0; i < 3; i++) {
+      amplitude = Math.min(
+        amplitude,
+        (Math.max(0, Math.min(base[i], 1 / variation - base[i])) /
+          Math.abs(direction[i])) *
+          0.98,
+      );
+    }
+  }
   return base.map((value, i) =>
     clamp((value + (isText ? 1 : -1) * amplitude * direction[i]) * variation),
   );

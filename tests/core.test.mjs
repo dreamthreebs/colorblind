@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   splitPages,
   colorFor,
+  COLORFUL_BASES,
   simulate,
   embedMessage,
   extractMessage,
@@ -20,6 +21,31 @@ test("original PNG round trips Unicode, line breaks, and literal markup safely",
     extractMessage(embedMessage(png, { text, type: "deutan" })).text,
     text,
   );
+});
+test("every colorful hue stays in gamut and loses contrast in its target simulation", () => {
+  const dist = (a, b) => Math.hypot(...a.map((v, i) => v - b[i]));
+  for (const type of ["deutan", "protan", "tritan"]) {
+    for (let hue = 0; hue < COLORFUL_BASES.length; hue++) {
+      for (const variation of [0.67, 0.8, 1, 1.19]) {
+        const a = colorFor(true, variation, type, "colorful", hue);
+        const b = colorFor(false, variation, type, "colorful", hue);
+        assert.ok(
+          [...a, ...b].every((v) => v > 0 && v < 1),
+          "pair must not clip",
+        );
+        assert.ok(dist(a, b) > 0.07, "pair retains some original contrast");
+        assert.ok(
+          dist(simulate(a, type), simulate(b, type)) < dist(a, b) * 0.17,
+        );
+        for (let i = 0; i < 3; i++) {
+          assert.ok(
+            Math.abs((a[i] + b[i]) / 2 - COLORFUL_BASES[hue][i] * variation) <
+              1e-12,
+          );
+        }
+      }
+    }
+  }
 });
 test("rejects ordinary images, truncated data, wrong types, and corrupt envelope", () => {
   assert.throws(() => extractMessage(png), /没有找到/);

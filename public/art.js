@@ -1,4 +1,4 @@
-import { random, colorFor, linearToSrgb, simulate } from "./core.js";
+import { random, colorFor, linearToSrgb, simulate } from "./core.js?v=color-5";
 
 export const FONT_STYLES = {
   black: {
@@ -112,9 +112,9 @@ export function makeArtwork(text, density, seed, typography = {}) {
   }
   const rng = random(seed),
     dots = [],
-    cellSize = 24,
+    cellSize = 32,
     grid = new Map();
-  const maxR = [12, 8.6, 6.3, 4.2][density],
+  const maxR = [15, 8.6, 6.3, 4.2][density],
     minR = [4.5, 3, 2.3, 1.5][density];
   function inside(x, y, r) {
     if (circular) return Math.hypot(x - 500, y - 500) + r < 465;
@@ -245,6 +245,7 @@ export function drawArtwork(
   severity = 100,
   pattern = "dots",
   viewport = { x: 0, y: 0, size: 1000 },
+  palette = "classic",
 ) {
   const ctx = canvas.getContext("2d");
   const scale = canvas.width / viewport.size;
@@ -262,7 +263,12 @@ export function drawArtwork(
       d.y - d.r > viewport.y + viewport.size
     )
       continue;
-    let rgb = colorFor(d.isText, d.variation, type);
+    // Position-derived hue does not encode the message or affect dot packing.
+    const hue =
+      (Math.imul(Math.round(d.x * 100), 73856093) ^
+        Math.imul(Math.round(d.y * 100), 19349663)) >>>
+      0;
+    let rgb = colorFor(d.isText, d.variation, type, palette, hue);
     if (view === "simulation") rgb = simulate(rgb, type, severity);
     ctx.fillStyle =
       view === "reveal"
